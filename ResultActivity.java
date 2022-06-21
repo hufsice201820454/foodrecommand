@@ -1,53 +1,589 @@
-package com.example.helloworld;
+package com.example.foodrocommender;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.view.KeyEvent;
-import android.webkit.DownloadListener;
-import android.webkit.WebChromeClient;
-import android.webkit.WebResourceRequest;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ResultActivity extends AppCompatActivity {
 
-    private WebView wv1, wv2, wv3;
-    private String url1 = "data:image/jpeg;base64,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";
-    private String url2 = "https://img.etoday.co.kr/pto_db/2014/03/600/20140314092201_422954_600_450.jpg";
-    private String url3 = "data:image/jpeg;base64,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";
+    private ImageButton im1, im2, im3;// 음식 사진 을 보여주는 이미지 버튼, 클릭시 음식이름 나옴
+    private TextView fe1, fe2, fe3;//음식에 해당하는 간단한 글귀
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_result);
 
-        wv1 = (WebView)findViewById(R.id.wv1);
-        wv2 = (WebView)findViewById(R.id.wv2);
-        wv3 = (WebView)findViewById(R.id.wv3);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();//액션바 숨김
 
-        wv1.getSettings().setUseWideViewPort(true);//wide viewport를 사용하도록 설정
-        wv2.getSettings().setUseWideViewPort(true);
-        wv3.getSettings().setUseWideViewPort(true);
+        im1 = findViewById(R.id.im1);
+        im2 = findViewById(R.id.im2);
+        im3 = findViewById(R.id.im3);
+        im1.setClipToOutline(true);
+        im2.setClipToOutline(true);
+        im3.setClipToOutline(true);
+        fe1 = findViewById(R.id.foodex1);
+        fe2 = findViewById(R.id.foodex2);
+        fe3 = findViewById(R.id.foodex3);
 
-        wv1.getSettings().setLoadWithOverviewMode(true);//컨텐츠가 웹뷰보다 클 경우 스크린 크기에 맞게 조정
-        wv2.getSettings().setLoadWithOverviewMode(true);
-        wv3.getSettings().setLoadWithOverviewMode(true);
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //hot : 0:맵지 않음 1:약간매움 2:매움 3:아주매움
+        //price : 1:만원 이하, 2: 2만원 이하, 3: 3만원 이하, 4: 3만원 이상
+        //time : 아점저야 순서로 배수 123 순으로 표기. 가령, 2310(아침2 점심3 저녁1 야식0)
+        //kind : 0:한식, 1:양식, 2:중식, 3:일식, 4:기타
 
-        wv1.getSettings().setJavaScriptEnabled(true);
-        wv2.getSettings().setJavaScriptEnabled(true);
-        wv3.getSettings().setJavaScriptEnabled(true);
+        //음식 객체 추가
+        Food sandwitch = new Food(0, 1, 0, 0, 93330, 1, "샌드위치", "가성비 좋은 샌드위치어떠세요?", R.drawable.sandwich);
+        Food doughnut = new Food(0, 1, 0, 0, 93300, 1, "도너츠", "도너츠먹어라", R.drawable.donut);
+        Food burger = new Food(0, 1, 0, 0, 90331, 1, "햄버거", "다양한 맛 햄버거어떠세요?", R.drawable.hamburger);
+        Food pizza = new Food(0, 2, 0, 0, 90132, 1, "피자", "피자는 피자헛이죠", R.drawable.pizza);
+        Food chicken = new Food(0, 3, 0, 0, 90133, 1, "치킨", "바삭한 치킨어떠세요?", R.drawable.chicken);
+        Food pancake = new Food(0, 2, 0, 0, 93200, 1, "팬케이크", "폭신한 팬케이크어떠세요?", R.drawable.pancake);
+        Food waffle = new Food(0, 1, 0, 0, 93200, 1, "와플", "바삭한 와플먹어라", R.drawable.waffle);
+        Food pilaf = new Food(1, 1, 0, 0, 91230, 1, "필라프", "볶음밥과는 다른매력의 필라프어떠세요?", R.drawable.pilaf);
+        Food kebab = new Food(0, 2, 0, 0, 91320, 1, "케밥", "고기의 탑 케밥은 어떠세요?", R.drawable.kebob);
+        Food risotto = new Food(0, 1, 0, 0, 90330, 1, "리조또", "부드러운 리조또어떠세요?", R.drawable.risotto);
+        Food bongole = new Food(1, 1, 0, 0, 90330, 1, "봉골레", "해산물의 시원함 봉골레어떠세요?", R.drawable.bongolepasta);
+        Food zzazang = new Food(0, 1, 0, 0, 90330, 2, "짜장면", "이사날에는 짜장면이죠", R.drawable.jajangmyeon);
+        Food zzambbong = new Food(2, 1, 1, 0, 90330, 2, "짬뽕", "매콤한 짬뽕 어떠세요?", R.drawable.jjamppong);
+        Food tangsuyook = new Food(0, 2, 0, 0, 90331, 2, "탕수육", "바삭한 탕수육 어떠세요?", R.drawable.tangsooyook);
+        Food guobarou = new Food(0, 2, 0, 0, 90331, 2, "꿔바로우", "쫄깃한 꿔바로우 어떠세요?", R.drawable.guobaorou);
+        Food kkanpung = new Food(1, 2, 1, 0, 90331, 2, "깐풍기", "깐풍기 어떠세요?", R.drawable.kkanpunggi);
+        Food menbosya = new Food(0, 2, 0, 0, 90331, 2, "멘보샤", "바삭한 멘보샤 어떠세요?", R.drawable.shrimptoast);
+        Food yuringi = new Food(0, 2, 0, 0, 90330, 2, "유린기", "바삭한 유린기어떠세요?", R.drawable.yuringi);
+        Food mafatofu = new Food(1, 1, 0, 0, 91330, 2, "마파두부", "밥도둑 마파두부 어떠세요?", R.drawable.mapadubu);
+        Food Japche = new Food(1, 2, 1, 0, 90330, 2, "고추 잡채", "급식으로 자주나오던 꽃빵과 함께", R.drawable.gochujapchae);
+        Food gismyun = new Food(1, 1, 1, 0, 90330, 2, "기스면", "중국의 별미 기스면어떠세요?", R.drawable.giseumyeon);
+        Food sushi = new Food(0, 2, 0, 0, 92220, 3, "초밥", "일본하면 초밥이죠", R.drawable.sushi);
+        Food onigiri = new Food(0, 1, 0, 0, 93310, 3, "오니기리", "만화에서 자주나오던 오니기리 어떠세요?", R.drawable.onigiri);
+        Food gatsudon = new Food(0, 1, 0, 0, 90330, 3, "가츠동", "덮밥시리즈 가츠동은어떠세요?", R.drawable.katsudong);
+        Food gyudon = new Food(0, 1, 0, 0, 90330, 3, "규동", "규동 어떠세요?", R.drawable.gyudong);
+        Food tendon = new Food(0,2,0,0,90330,3, "텐동", "바삭한 덮밥 텐동어떠세요?", R.drawable.tendon);
+        Food oyakodon = new Food(0, 1, 0, 0, 90330, 3, "오야코동", "오야코동 어떠세요?", R.drawable.oyakodong);
+        Food udon = new Food(0, 1, 1, 0, 90331, 3, "우동", "겨울철엔 뜨끈한 우동이죠", R.drawable.udong);
+        Food soba = new Food(0, 1, 0, 0, 90330, 3, "소바", "여름엔 시원한 소바어떠세요?", R.drawable.soba);
+        Food takoyaki = new Food(0, 1, 0, 0, 90221, 3, "타코야끼", "우리아이 간식인 타코야끼 어떠세요?", R.drawable.takoyaki);
+        Food okonomiyaki = new Food(0, 2, 0, 0, 90122, 3, "오코노미야끼", "타코야끼와는 다른매력의 오코노미야끼어떠세요?", R.drawable.okonomiyaki);
+        Food chamchimayo = new Food(0, 1, 0, 0, 90330, 0, "참치마요덮밥", "급식때 자주먹던 참치마요 어떠세요?", R.drawable.tunarice);
+        Food chickmayo = new Food(0, 1, 0, 0, 90330, 0, "치킨마요덮밥", "급식때 자주먹던 치킨마요 어떠세요?", R.drawable.chickenrice);
+        Food gogiguksu = new Food(0, 1, 1, 0, 91330, 0, "고기 국수", "든든한 고기국수 어떠세요?", R.drawable.meatguksu);
+        Food dakkalguksu = new Food(0, 1, 1, 0, 91330, 0, "닭 칼국수", "시원한 닭칼국수 어떠세요?", R.drawable.chickenkalguksu);
+        Food bazirakkalguksu = new Food(0, 1, 1, 0, 91330, 0, "바지락 칼국수", "시원한 바지락칼국수 어떠세요?", R.drawable.kalguksu);
+        Food jangkalguksu = new Food(1, 1, 1, 0, 91330, 0, "장칼국수", "전통시장의 맛 장칼국수어떠세요?", R.drawable.jangkalguksu);
+        Food milmyun = new Food(0, 1, 0, 0, 91320, 0, "밀면", "오늘은 밀면 어떠세요?", R.drawable.milmyeon);
+        Food zzolmyun = new Food(0, 1, 0, 1, 91321, 0, "쫄면", "분식은 역시 쫄면이죠", R.drawable.jjolmyeon);
+        Food nengmyun = new Food(0, 1, 0, 1, 90330, 0, "냉면", "여름엔 냉면이죠", R.drawable.naengmyeon);
+        Food konggukusu = new Food(0, 1, 0, 1, 91220, 0, "콩국수", "여름의 별미 콩국수 어떠세요?", R.drawable.beannoodle);
+        Food kkarebonara = new Food(0,1,0,0,90230,1,"까르보나라","부드러운 까르보나라 어떠세요?", R.drawable.creampasta);
+        Food toumba = new Food(1, 1, 0, 0, 90230, 1,"투움바", "부드러움과 매움이 공존하는 투움바", R.drawable.toowoomba_pasta);
+        Food tomatopasta = new Food(0,1,0,0,90230, 1,"토마토파스타", "무난한 토마토파스타 어떠세요?", R.drawable.tomato_pasta);
+        Food ragupasta = new Food(1,1,0,0,90230,1,"라구파스타", "파스타의 변신 라구파스타 어떠세요?", R.drawable.ragupasta);
+        Food taco = new Food(1,1,0,0,90230,1,"타코","멕시코의 여름별미 타코어떠세요?", R.drawable.taco);
+        Food quasadia = new Food(0,1,0,0,90330,1,"퀘사디아","퀘사디아 어떠세요?", R.drawable.quesadilla);
+        Food steak = new Food(0,3,0,0,90130,1,"스테이크","스테이크는 아웃백이죠", R.drawable.steak);
+        Food bbaaeua = new Food(0,1,0,0,90230,1,"빠에야","오늘은 빠에야 어떠세요?", R.drawable.paella);
+        Food poklip = new Food(0,3,0,0,90130,1,"폭립","오늘은 폭립어떠세요?", R.drawable.porkrib);
+        Food bbabequeplatter = new Food(0,4,0,0,90131,1,"바비큐플레터","월급날엔 바비큐죠", R.drawable.barbecueplatter);
+        Food beefstew = new Food(0,2,0,0,91331,1,"비프스튜","뜨끈한 비프스튜어떠세요?", R.drawable.beefstew);
+        Food gambas = new Food(0,2,0,0,90231,1,"감바스","담백한 감바스 어떠세요?", R.drawable.gambas);
+        Food hotdog = new Food(0,1,0,0,92312,1,"핫도그","휴게소의 그맛 핫도그 어떠세요?", R.drawable.hotdog);
+        Food corndog = new Food(0,1,0,0,91302,1,"콘도그","휴게소의 그맛 콘도그 어떠세요?", R.drawable.corndog);
+        Food brunch = new Food(0,1,0,0,93100,1,"브런치","서양의아침 브런치 어떠세요?", R.drawable.brunch);
+        Food egginhell = new Food(0,2,0,0,91301,1,"에그인헬","에그인헬이 유행이라면서요?", R.drawable.egginhell);
+        Food curry = new Food(0,1,0,0,92331,4,"카레","무난한 카레어떠세요?", R.drawable.curry);
+        Food hunjeunae = new Food(0,2,0,0,90330,1,"훈제연어", "다이어트에 좋은 연어어떠세요?", R.drawable.roastsalmon);
+        Food rapstar = new Food(0,4,0,0,90230,1,"랍스터", "월급날이시면 랍스터어떠세요?", R.drawable.lobster);
+        Food daegae = new Food(0,4,0,0,90230,0,"대게", "월급날이시면 대게어떠세요?" , R.drawable.bigcrab);
+        Food steakrice = new Food(0,2,0,0,90230,1,"스테이크동","부드러운 스테이크동어떠세요?", R.drawable.steakrice);
+        Food ueulnamsam = new Food(0,2,0,0,90310,4,"월남쌈","가족과 함께먹는 월남쌈어떠세요?", R.drawable.wollamssam);
+        Food ssalguksu = new Food(0,1,0,0,91330,4,"쌀국수","베트남 별미 쌀국수어떠세요?", R.drawable.ricenoodle);
+        Food spicyschicken =  new Food(1,2,0,0,90233,0,"양념치킨","한국식 치킨 양념치킨어떠세요?", R.drawable.spicychicken);
+        Food soychicken = new Food(0,2,0,0,90233,0,"간장치킨","한국식 치킨 간장치킨어떠세요?", R.drawable.soysaucechicken);
+        Food padak = new Food(0,2,0,0,90233,0,"파닭","소스와 파를 쌈싸먹는 파닭은어떠세요?", R.drawable.pachicken);
+        Food maccheese = new Food(0,1,0,0,91112,1,"맥앤치즈","부드러운 맥앤치즈 어떠세요?", R.drawable.macandcheese);
+        Food toast = new Food(0,1,0,0,93300,1,"토스트","바삭한 토스트 어떠세요?", R.drawable.toast);
+        Food roastturkey = new Food(0,4,0,0,90231,1,"칠면조구이","가족과 함께하는 칠면조 어떠세요?", R.drawable.turkeyroast);
+        Food rajanaa = new Food(0,1,0,0,90331,1,"라자냐","다양한 맛이있는 라자냐어떠세요?", R.drawable.lasagna);
+        Food lambgalbi = new Food(0,2,0,0,90130,1,"양갈비","요즘 양이 제철이래요", R.drawable.yanggalbi);
+        Food sosage =  new Food(0,1,0,0,90331,1,"소세지","톡톡튀는 소세지어떠세요?", R.drawable.sausages);
+        Food salmonsteak = new Food(0,2,0,0,90230,1,"연어스테이크","담백한 연어스테이크 어떠세요?", R.drawable.salmonsteak);
+        Food hunjaeduck = new Food(0,2,0,0,90230,1,"훈제오리","쫄깃한 훈제오리 어떠세요?", R.drawable.roastduck);
+        Food briskit = new Food(0,3,0,0,90131,1,"브리스킷","쭉쭉 찢어지는 브리스킷어떠세요?", R.drawable.brisket);
+        Food britto = new Food(0,1,0,0,91230,1,"브리또","외대앞 브리또가 맛있데요 어떠세요?", R.drawable.burrito);
+        Food jambalia = new Food(0,2,0,0,90330,1,"잠발라야","오늘은 잠발라야 어떠세요?", R.drawable.jambalaya);
+        Food rabioli = new Food(0,2,0,0,90320,1,"라비올리","이탈리아식 만두 라비올리 어떠세요?", R.drawable.ravioli);
+        Food ulmun = new Food(0,1,0,0,90330,2,"울면","슬플땐 울면어떠세요?", R.drawable.ulmyeon);
+        Food rajogi = new Food(0,3,0,0,90330,2,"라조기","오늘은 라조기 어떠세요?", R.drawable.rajogi);
+        Food lambggochi = new Food(0,2,0,0,90133,2,"양꼬치","우리아이 술안주 양꼬치 어떠세요?", R.drawable.yangggochi);
+        Food maratang = new Food(3,1,0,0,90331,2,"마라탕","맛있으면 0칼로리 마라탕어떠세요?", R.drawable.malatang);
+        Food maralongsha = new Food(2,1,0,0,90331,2,"마라롱샤","오늘은 마라롱샤 어떠세요?", R.drawable.maralongsha);
+        Food gganshowshirimp = new Food(0,3,0,0,90331,2,"깐쇼새우","칠리소스와 함께 깐쇼새우어떠세요?", R.drawable.kkansho_shrimp);
+        Food yangjangpi = new Food(0,3,0,0,90230,2,"양장피","중국집 필수메뉴 양장피 어떠세요?", R.drawable.yangjangpi);
+        Food palbochae = new Food(0,3,0,0,90230,2,"팔보채","다양한 식감 팔보채는 어떠세요?", R.drawable.palbochae);
+        Food dongpayuk = new Food(0,3,0,0,90130,2,"동파육","입안에서 녹아버리는 동파육 어떠세요?", R.drawable.dongpayuk);
+        Food tantanmuen = new Food(2,1,0,0,90330,2,"탄탄면","짜장 짬뽕말고 탄탄면 어떠세요?", R.drawable.tantanmyeon);
+        Food uhangdongo =  new Food(0,4,0,0,90230,2,"어향동고","오늘은 어향동고 어떠세요?", R.drawable.eohyangdonggo);
+        Food uhangazi = new Food(0,3,0,0,90230,2,"어향가지","가지의 재발견 어향가지 어떠세요?", R.drawable.eohyanggaji);
+        Food wooyukmeun = new Food(0,1,0,0,90320,2,"우육면","중국의 소고기요리 우육면어떠세요?", R.drawable.woyukmyeon);
+        Food nanjawanse = new Food(0,3,0,0,90330,2,"난자완스","오늘은 난자완스 어떠세요?", R.drawable.nanjawanseu);
+        Food huagua = new Food(2,2,0,0,90230,2,"훠궈","비싸지만 제값한다 훠궈어떠세요?", R.drawable.huoguo);
+        Food nangzzambbong = new Food(1,1,0,1,90330,2,"냉짬뽕","매움과 시원함이 하나로", R.drawable.icejjamppong);
+        Food dimsum = new Food(0,1,0,0,90321,2,"딤섬","중국하면 만두죠", R.drawable.dimsum);
+        Food shaolongbao = new Food(0,1,0,0,90321,2,"샤오롱바오","중국식 만두 샤오롱바오 어떠세요?", R.drawable.xiaolongbao);
+        Food pattai = new Food(0,1,0,0,90330,2,"팟타이","태국에 대표음식 팟타이 어떠세요?", R.drawable.padthai);
+        Food ddomanggong = new Food(2,1,0,0,90330,4,"똠양꿍","얼큰한 똠양꿍 어떠세요?", R.drawable.tomyumgoong);
+        Food majangmeun = new Food(0,1,0,0,90330,2,"마장면","정통중식 마장면 어떠세요?", R.drawable.majangmyeon);
+        Food banmi = new Food(0,1,0,0,93310,2,"반미","베트남식 샌드위치 반미 어떠세요?", R.drawable.banhmi);
+        Food nasigolang = new Food(1,1,0,0,90330,2,"나시고랭","색다른 볶음밥 나시고랭 어떠세요?", R.drawable.nasigoreng);
+        Food kyungjanguksa = new Food(0,1,0,0,91230,2,"경장육사","오늘 경장육사 어떠세요?", R.drawable.kyungjangyooksa);
+        Food beijingduck = new Food(0,4,0,0,90130,2,"베이징덕","베이징의 전통 베이징덕 어떠세요?", R.drawable.beijingduck);
+        Food tepanyaki = new Food(0,2,0,0,90131,3,"테판야키", "철판요리가 땡길땐 테판야키 어떠세요?", R.drawable.teppanyaki);
+        Food tenpura = new Food(0,2,0,0,90330,3,"텐푸라","다양한 튀김요리 텐푸라 어떠세요?", R.drawable.tenpura);
+        Food porkcurtlet = new Food(0,1,0,0,90330,3,"돈까스","바삭한 돈까스 어떠세요?", R.drawable.porkcutlet);
+        Food gukache = new Food(0,3,0,0,90230,3,"규카츠","바삭한 소고기 규카츠 어떠세요?", R.drawable.gyukatsu);
+        Food shabe = new Food(0,2,0,2,90330,3,"샤브샤브","뜨끈한 샤브샤브 어떠세요?", R.drawable.shabushabu);
+        Food odengtang = new Food(0,2,0,2,90331,3,"오뎅탕","뜨끈한 오뎅탕 어떠세요?", R.drawable.odengtang);
+        Food shasimi = new Food(0,2,0,0,90230,3,"사시미", "돈 좀 쓰고싶을때 사시미 어떠세요?", R.drawable.sashimi);
+        Food yakitori = new Food(0,2,0,0,90121,3,"야키토리","일본식 닭꼬치 야키토리 어떠세요?", R.drawable.yakitori);
+        Food ramen = new Food(0,1,1,2,90231,3,"라멘","일본하면 라멘이죠", R.drawable.japaneseramen);
+        Food omirice = new Food(0,1,0,0,90230,3,"오므라이스","오늘 오므라이스 어떠세요?", R.drawable.omeletrice);
+        Food hambak = new Food(0,2,0,0,90330,3,"함박스테이크", "오늘 함박스테이크 어떠세요?", R.drawable.hamburgsteak);
+        Food albap = new Food(0,2,0,0,90330,3,"알밥","톡톡튀는 알밥 어떠세요?", R.drawable.albap);
+        Food nabe = new Food(0,3,0,0,90130,3,"전골나베", "뜨끈한 전골나베 어떠세요?", R.drawable.jeongolnabe);
+        Food yakisoba = new Food(0,2,0,1,90231,3,"야키소바","볶음면이 먹고싶을땐 야키소바 어떠세요?", R.drawable.yakisoba);
+        Food galbitang = new Food(0,2,0,2,91330,0,"갈비탕","오늘 갈비탕은 어떠세요?", R.drawable.galbitang);
+        Food gamjatang = new Food(1,3,0,0,90330,0,"감자탕","든든하게 감자탕 어떠세요?", R.drawable.gamjatang);
+        Food gomtang = new Food(0,2,0,0,91330,0,"곰탕","뜨끈한 곰탕 어떠세요?", R.drawable.gomtang);
+        Food maeuntang = new Food(2,3,1,0,90230,0,"매운탕","얼큰한 매운탕 어떠세요?", R.drawable.maeuntang);
+        Food samgyetang = new Food(0,2,0,1,90230,0,"삼계탕","몸보신이 필요할땐 삼계탕이죠", R.drawable.samgyetang);
+        Food yunpotang = new Food(0,4,0,0,90330,0,"연포탕","맑은 국물이 땡길땐 연포탕이죠", R.drawable.yeonpotang);
+        Food chuutang = new Food(1,1,0,1,90330,0,"추어탕","오늘 추어탕 어떠세요?", R.drawable.chueotang);
+        Food dakgyejang = new Food(1,1,0,0,91330,0,"닭개장","얼큰한 닭개장 어떠세요?", R.drawable.dakgaejang);
+        Food yukaejang = new Food(1,1,0,0,91330,0,"육개장","육개장은 역시 보배집이죠~", R.drawable.yukgaejang);
+        Food manduguk = new Food(0,1,0,2,91330,0,"만두국","뜨끈한 만두국 어떠세요?", R.drawable.mandoguk);
+        Food sunjihaejangguk = new Food(1,1,0,2,91330,0,"선지해장국","뜨끈한 선지해장국 어떠세요?", R.drawable.seonjihaejangguk);
+        Food pinggukbab = new Food(0,1,0,0,91330,0,"돼지국밥","든든함의 대표 돼지국밥 어떠세요?", R.drawable.dwaejigukbap);
+        Food cowgukbab = new Food(0,1,0,0,91330,0,"소머리국밥", "뜨끈한 소머리국밥 어떠세요?", R.drawable.someorigukbap);
+        Food beankukbab = new Food(0,1,0,0,91330,0,"콩나물국밥","미친 가성비의 콩나물국밥 어떠세요?", R.drawable.kongnamulgukbap);
+        Food gochujang = new Food(1,1,0,0,91330,0,"고추장찌개","얼큰하게 고추장찌개 어떠세요?", R.drawable.gochujangjjigae);
+        Food kimchijjigae = new Food(1,1,0,0,91331,0,"김치찌개", "밥도둑중의 밥도둑 김치찌개 어떠세요?", R.drawable.kimchistew);
+        Food jaguelie = new Food(1,1,0,0,90331,0,"짜글이","김치찌개와는 또 다른맛", R.drawable.jjageuli);
+        Food dongtaejjigae = new Food(1,2,0,0,91330,0,"동태찌개","오늘 동태찌개 어떠세요?", R.drawable.dongtaejjigae);
+        Food budaejjigae = new Food(1,2,0,0,90330,0,"부대찌개","매콤하게 부대찌게 어떠세요?", R.drawable.budaejjigae);
+        Food sundubujjigae = new Food(1,1,0,0,90330,0,"순두부찌개","뜨끈한 순두부찌개 어떠세요?", R.drawable.sundubujjigae);
+        Food gimbap = new Food(0,1,0,0,92330,0,"김밥","간단하게 먹기좋은 김밥 어떠세요?", R.drawable.kimbap);
+        Food tteokbokki = new Food(2,0,0,0,90332,0,"떡볶이","분식에 대표 떡볶이 어떠세요?", R.drawable.tteokbokki);
+        Food ramun = new Food(1,0,0,0,93332,0,"라면","언제먹어도 맛있는 라면 어떠세요?", R.drawable.ramen);
+        Food roastfish = new Food(0,1,0,0,93330,0,"생선구이","오늘 생선구이 어떠세요?", R.drawable.roastfish);
+        Food fishjorim = new Food(0,2,0,0,93330,0,"생선조림","오늘 생선조림 어떠세요?", R.drawable.fishjorim);
+        Food pajun = new Food(0,1,1,0,90133,0,"파전","비오는날엔 파전이죠", R.drawable.pajun);
+        Food kimchijun = new Food(1,1,1,0,90133,0,"김치전","부침개의 대표 김치전 어떠세요?", R.drawable.kimchijun);
+        Food bulgogi = new Food(0,2,0,0,90330,0,"불고기","한식하면 불고기죠", R.drawable.bulgogi);
+        Food nerbiani = new Food(0,1,0,0,91330,0,"너비아니","오늘 너비아니 어떠세요?", R.drawable.neobiani);
+        Food cowgalbi = new Food(0,3,0,0,90230,0,"소갈비","소의 끝판왕 소갈비 어떠세요?", R.drawable.sogalbi);
+        Food kimchojjim = new Food(1,2,0,0,90330,0,"김치찜","매일 먹어도 안질리는 김치찜 어떠세요?", R.drawable.kimchijjim);
+        Food rawcow = new Food(0,3,0,0,90131,0,"육회","가격빼곤 모든게 완벽한 음식이죠", R.drawable.rawbeef);
+        Food piggalbi = new Food(0,2,0,0,90230,0,"돼지갈비","특별한 날엔 돼지갈비 어떠세요?", R.drawable.dwaejigalbi);
+        Food samkyupsal = new Food(0,2,0,0,90130,0,"삼겹살","매일 먹고싶은 맛의 삼겹살 어떠세요?", R.drawable.porkbelly);
+        Food jeyuk = new Food(1,2,0,0,90330,0,"제육볶음","매콤하게 제육볶음 어떠세요?", R.drawable.jeyukbokkeum);
+        Food duruchigi = new Food(0,1,0,0,90331,0,"두루치기","오늘 두루치기 어떠세요?", R.drawable.duruchigi);
+        Food bosam = new Food(0,4,0,0,90333,0,"보쌈","김장하면 떠오르는 보쌈 어떠세요?", R.drawable.bossam);
+        Food suyuk = new Food(0,4,0,0,90333,0,"수육","비싸지만 맛있는 수육 어떠세요?", R.drawable.suyuk);
+        Food jokbal = new Food(0,4,0,0,90333,0,"족발","돼지는 발조차 맛있습니다", R.drawable.jokbal);
+        Food dakgalbi = new Food(0,2,0,0,90230,0,"닭갈비","닭갈비하면 춘천이죠", R.drawable.dakgalbi);
+        Food waterdakgalbi = new Food(1,2,0,0,90230,0,"물닭갈비","오늘 물닭갈비 어떠세요?", R.drawable.muldakgalbi);
+        Food dakdoritang = new Food(1,2,0,0,90231,0,"닭도리탕","매콤한 닭도리탕 어떠세요?", R.drawable.dakdoritang);
+        Food dakgangjung = new Food(0,1,0,0,90323,0,"닭강정","치킨과는 다른맛 닭강정 어떠세요?", R.drawable.dakgangjeong);
+        Food dakbal = new Food(0,2,0,0,90133,0,"닭발","매콤한 닭발 어떠세요?", R.drawable.chickenfoot);
+        Food jjimdak = new Food(0,3,0,0,90131,0,"찜닭","밥도둑 찜닭 어떠세요?", R.drawable.jjimdak);
+        Food bibimbab = new Food(1,1,0,0,92320,0,"비빔밥","입맛 없을때 최고인 비빔밥 어떠세요?", R.drawable.bibimbap);
+        Food kimchibokembab = new Food(1,1,0,0,91330,0,"김치볶은밥","언제먹어도 맛있는 김치볶음밥 어떠세요?", R.drawable.kimchirice);
+        Food chinabokembab = new Food(0,1,0,0,90330,2,"중국식볶음밥","짜장에 밥은 언제나 성공이죠", R.drawable.jajang_rice);
+        Food babburger = new Food(0,1,0,0,93321,0,"밥버거","간단하게 먹고싶을때 밥버거 어떠세요?", R.drawable.riceburger);
+        Food sujebi = new Food(0,2,0,2,90330,0,"수제비","쫄깃쫄깃한 수제비 어떠세요?", R.drawable.sujebi);
+        Food yachegopchang = new Food(0,3,0,0,90133,0,"야채곱창","오늘 야채곱창은 어떠세요?", R.drawable.yachaegopchang);
+        Food cowgopchang = new Food(0,3,0,0,90133,0,"소곱창","돼지와는 또 다른맛 소곱창 어떠세요?", R.drawable.sogopchang);
+        Food daechang = new Food(0,3,0,0,90133,0,"대창","오늘 대창은 어떠세요?", R.drawable.daechang);
+        Food makchang = new Food(0,2,0,0,90133,0,"막창","오늘 막창은 어떠세요?", R.drawable.makchang);
+        Food pigkkupdaegi = new Food(0,2,0,0,90133,0,"돼지껍데기","쫄깃한 식감의 돼지껍데기 어떠세요?", R.drawable.dwaejikkeopdegi);
+        Food rawfish = new Food(0,3,0,0,90231,3,"회","쫄깃쫄깃한 회 어떠세요?", R.drawable.rawfish);
+        Food janguh = new Food(0,4,0,0,90230,0,"장어구이","몸보신하면 장어구이죠", R.drawable.broiled_eels);
+        Food agujjim = new Food(0,4,0,0,90230,0,"아구찜","오늘 아구찜 어떠세요?", R.drawable.agujjim);
+        Food hamuljjim = new Food(0,3,0,0,90230,0,"해물찜","해물의 종합세트 해물찜 어떠세요?", R.drawable.haemuljjim);
+        Food mulheul = new Food(0,2,0,1,90330,0,"물회","시원한 물회 어떠세요?", R.drawable.mulhoe);
+        Food jjukkumi = new Food(1,2,0,0,90330,0,"쭈꾸미","낙지와는 또 다른 쭈꾸미 어떠세요?", R.drawable.jjuccumi);
+        Food gopdoritang = new Food(1,3,0,0,90131,0,"곱도리탕","얼큰한 곱도리탕 어떠세요?", R.drawable.gopdoritang);
+        Food nakgopsae = new Food(2,3,0,0,90133,0, "낙곱새","낙지 곱창 새우가 한번에!", R.drawable.nakgopsae);
+        Food ohsambulgogi = new Food(0,2,0,0,90230,0,"오삼불고기","오징어와 삼겹살이 한번에!", R.drawable.osambulgogi);
+        Food tandurichicken = new Food(0,2,0,0,90231,1, "탄두리치킨","치킨의 또다른 변신 탄두리치킨 어떠세요?", R.drawable.tandoori_chicken);
+        Food kodari = new Food(0,3,0,0,90230,0,"코다리","오늘 코다리 어떠세요?", R.drawable.kodari);
+        Food soygejang = new Food(0,3,0,0,90230,0,"간장게장","밥도둑 간장게장 어떠세요?", R.drawable.soysaucecrab);
+        Food spicygejang = new Food(1,3,0,0,90230,0,"양념게장","매콤한 양념게장 어떠세요?", R.drawable.spicycrab);
+        Food gopchangjungol = new Food(0,3,0,0,90133,0,"곱창전골","뜨끈한 곱창전골 어떠세요?", R.drawable.gopchangjeongol);
+        Food dakddongzip = new Food(0,2,0,0,90123,0,"닭똥집","이름과 무관하게 먹어보면 대박입니다", R.drawable.ddongzip);
+        Food golbangei = new Food(1,1,0,0,90123,0,"골벵이무침","오늘 골벵이무침 어떠세요?", R.drawable.golbaengimuchim);
+        Food bbuehajangkuk = new Food(1,1,0,2,91230,0,"뼈해장국","든든하게 뼈해장국 어떠세요?", R.drawable.ppyeohaejangguk);
+        Food bibimnangmyeon = new Food(2,1,0,1,90230,0,"비빔냉면","매콤한 비빔냉면 어떠세요?", R.drawable.bibimnaengmyeon);
+        Food makguksu = new Food(1,1,0,0,90330,0,"막국수","시원하게 막국수 어떠세요?", R.drawable.makguksu);
+        Food potatoongsimi = new Food(0,1,0,2,90330,0,"감자옹심이","따듯한 감자옹심이 어때세요?", R.drawable.gamjaonshimi);
+        Food honghaptang = new Food(0,2,0,2,90232,0,"홍합탕","오늘 홍합탕 어떠세요?", R.drawable.honghaptang);
+        Food buljokbal = new Food(3,4,0,0,90233,0,"불족발","족발이 느끼하면 불족발어떠세요?", R.drawable.buljokbal);
 
-        wv1.loadUrl(url1);
-        wv2.loadUrl(url2);
-        wv3.loadUrl(url3);
+        Food[] foodtable = {sandwitch, doughnut, burger, pizza, chicken, pancake, waffle, pilaf, kebab, risotto, zzazang, zzambbong, tangsuyook, guobarou, kkanpung, menbosya, yuringi, mafatofu, Japche, gismyun,
+                sushi, onigiri, gatsudon, gyudon, tendon, oyakodon, udon, soba, takoyaki, okonomiyaki, chamchimayo, chickmayo, gogiguksu, dakkalguksu, bazirakkalguksu, jangkalguksu, milmyun, zzolmyun,
+                nengmyun, konggukusu, bongole, kkarebonara, toumba, tomatopasta, ragupasta, taco, quasadia, steak, bbaaeua,poklip,bbabequeplatter, beefstew, gambas, steakrice, hotdog,corndog, brunch, egginhell, curry, hunjeunae,
+                rapstar, daegae,ueulnamsam, ssalguksu,spicyschicken, soychicken, padak, maccheese,toast, roastturkey,rajanaa,lambgalbi, sosage, salmonsteak,
+                hunjaeduck,briskit,britto,jambalia, rabioli, ulmun, rajogi, lambggochi,maratang, maralongsha,gganshowshirimp, yangjangpi, palbochae,
+                dongpayuk, tantanmuen, uhangdongo,uhangazi, wooyukmeun, nanjawanse, huagua, nangzzambbong, dimsum, shaolongbao, pattai, ddomanggong, majangmeun,banmi,
+                nasigolang, kyungjanguksa, beijingduck,tepanyaki,tenpura,porkcurtlet,gukache,shabe,odengtang, shasimi, yakitori, ramen, omirice, hambak,albap ,nabe,yakisoba,
+                galbitang,gamjatang,gomtang,maeuntang,samgyetang,yunpotang,chuutang,dakgyejang,yukaejang,manduguk,sunjihaejangguk,pinggukbab,cowgukbab,beankukbab,gochujang,kimchijjigae,jaguelie,dongtaejjigae,budaejjigae,sundubujjigae,gimbap,tteokbokki,ramun,roastfish,fishjorim,
+                pajun, kimchijun, bulgogi, nerbiani, cowgalbi, kimchojjim, rawcow, piggalbi, ssalguksu, jeyuk, samkyupsal,
+                duruchigi, bosam, suyuk, jokbal, dakbal, dakgalbi, waterdakgalbi, dakdoritang, dakgangjung,
+                jjimdak,bibimbab,kimchibokembab,chinabokembab,babburger,sujebi,yachegopchang,cowgopchang,daechang,makchang,pigkkupdaegi,rawfish,janguh,agujjim,
+                hamuljjim,mulheul,jjukkumi,gopdoritang,nakgopsae, ohsambulgogi,tandurichicken,kodari, soygejang,spicygejang,gopchangjungol,dakddongzip,golbangei,bbuehajangkuk,bibimnangmyeon,makguksu,potatoongsimi, honghaptang,buljokbal};
 
-        wv1.setWebChromeClient(new WebChromeClient());
-        wv2.setWebChromeClient(new WebChromeClient());
-        wv3.setWebChromeClient(new WebChromeClient());
+        List<Food> temptable = new ArrayList<>();
+        List<Food> randomtable = new ArrayList<>();
+        List<Food> recommandtable = new ArrayList<>();
+        List<Food> deltable = new ArrayList<>();
 
+        Intent intent = getIntent();//이전 액티비티에서 정보 가져오기
+        int toospicy = intent.getIntExtra("toospicy",0);
+        int littlespicy = intent.getIntExtra("littlespicy",0);
+        int nospicy = intent.getIntExtra("nospicy",0);
+        int k = intent.getIntExtra("k",0);
+        int y = intent.getIntExtra("y",0);
+        int ch = intent.getIntExtra("c",0);
+        int j = intent.getIntExtra("j",0);
+        int e = intent.getIntExtra("e",0);
+        int price = intent.getIntExtra("price",0);
 
+        int w_hot_1 = 0; // 맵지 않음
+        int w_hot_2 = 0; // 약간 매움
+        int w_hot_3 = 0; // 매움
+        int w_price = price; // 1: 만원이하, 2: 2만원 이하, 3: 3만원 이하, 99:상관없음
+        int w_time = 0; // 0: 아침 1: 점심 2: 저녁 3: 야식
+        int w_kind_k = k ; //한식
+        int w_kind_w = y; //양식
+        int w_kind_c = ch;//중식
+        int w_kind_j = j;//일식
+        int w_kind_e = e;//기타
+
+        if(toospicy==1) w_hot_3 = 1;
+        if(littlespicy==1) w_hot_2 = 1;
+        if(nospicy==1) w_hot_1 = 1;
+
+        LocalTime now = LocalTime.now();
+
+        int hour = now.getHour();
+
+        if((hour>=5)&(hour<11)){//시스템 시간에따라 아침,점심,저녁,야식 분리
+            w_time = 0;
+        }else if((hour>=11)&(hour<16)){
+            w_time = 1;
+        }else if((hour>=16)&(hour<21)){
+            w_time = 2;
+        }else {
+            w_time = 3;
+        }
+
+        for(int i = 0; i < foodtable.length; i++) {//맵기, 가격, 음식 종류 선택에 해당하는 음식을 템프테이블에 추가
+
+            if(w_hot_1 == 1 & foodtable[i].getHot() == 0){
+                if(foodtable[i].getPrice() <= w_price){
+                    if(w_kind_k ==1 & foodtable[i].getKind() == 0){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_w ==1 & foodtable[i].getKind() == 1){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_c ==1 & foodtable[i].getKind() == 2){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_j ==1 & foodtable[i].getKind() == 3){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_e ==1 & foodtable[i].getKind() == 4){
+                        temptable.add(foodtable[i]);
+                    }
+                }
+            }
+            if(w_hot_2 == 1 & foodtable[i].getHot() == 1){
+                if(foodtable[i].getPrice() <= w_price){
+                    if(w_kind_k ==1 & foodtable[i].getKind() == 0){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_w ==1 & foodtable[i].getKind() == 1){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_c ==1 & foodtable[i].getKind() == 2){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_j ==1 & foodtable[i].getKind() == 3){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_e ==1 & foodtable[i].getKind() == 4){
+                        temptable.add(foodtable[i]);
+                    }
+                }
+            }
+            if(w_hot_3 == 1 & foodtable[i].getHot() == 2){
+                if(foodtable[i].getPrice() <= w_price){
+                    if(w_kind_k ==1 & foodtable[i].getKind() == 0){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_w ==1 & foodtable[i].getKind() == 1){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_c ==1 & foodtable[i].getKind() == 2){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_j ==1 & foodtable[i].getKind() == 3){
+                        temptable.add(foodtable[i]);
+                    }
+                    if(w_kind_e ==1 & foodtable[i].getKind() == 4){
+                        temptable.add(foodtable[i]);
+                    }
+                }
+            }
+        }
+
+        for(Food value : temptable){//1차로 뽑은 음식들 시간으로 분류
+            String morning = Integer.toString(value.getTime()).substring(1,2);
+            String lunch = Integer.toString(value.getTime()).substring(2,3);
+            String dinner = Integer.toString(value.getTime()).substring(3,4);
+            String mmeal = Integer.toString(value.getTime()).substring(4,5);
+
+            if(w_time == 0){
+                for(int i = 0; i < Integer.parseInt(morning); i ++){
+                    randomtable.add(value);
+                }
+            }
+            if(w_time == 1){
+                for(int i = 0; i < Integer.parseInt(lunch); i ++){
+                    randomtable.add(value);
+                }
+            }
+            if(w_time == 2){
+                for(int i = 0; i < Integer.parseInt(dinner); i ++){
+                    randomtable.add(value);
+                }
+            }
+            if(w_time == 3){
+                for(int i = 0; i < Integer.parseInt(mmeal); i ++){
+                    randomtable.add(value);
+                }
+            }
+        }
+////////////////////////////////////////////////////////////////////////////////아래는 추천개수가 부족할때를 위한 알고리즘
+        while(true){
+            temptable = new ArrayList<>();
+            for(int i = 0; i < foodtable.length; i++) {
+                if(w_kind_k ==1 & foodtable[i].getKind() == 0){
+                    temptable.add(foodtable[i]);
+                }
+                if(w_kind_w ==1 & foodtable[i].getKind() == 1){
+                    temptable.add(foodtable[i]);
+                }
+                if(w_kind_c ==1 & foodtable[i].getKind() == 2){
+                    temptable.add(foodtable[i]);
+                }
+                if(w_kind_j ==1 & foodtable[i].getKind() == 3){
+                    temptable.add(foodtable[i]);
+                }
+                if(w_kind_e ==1 & foodtable[i].getKind() == 4){
+                    temptable.add(foodtable[i]);
+                }
+            }
+            if(randomtable.size()==0){//음식이 아무것도 뽑히지 않았을때
+                int a = (int)(Math.random()*temptable.size());
+                recommandtable.add(temptable.get(a));
+                while(true){
+                    int b = (int)(Math.random()*temptable.size());
+                    int test = recommandtable.indexOf(temptable.get(b));
+
+                    if(test == -1){
+                        recommandtable.add(temptable.get(b));
+                        break;
+                    }
+                }
+                while(true){
+                    int c = (int)(Math.random()*temptable.size());
+                    int test = recommandtable.indexOf(temptable.get(c));
+                    if(test == -1){
+                        recommandtable.add(temptable.get(c));
+                        break;
+                    }
+                }
+                break;
+            }
+
+            deltable.add(randomtable.get(0));
+            for(int i = randomtable.size()-1; i>=0; i--){
+                if(deltable.contains(randomtable.get(i))==false){
+                    deltable.add(randomtable.get(i));
+                }
+            }
+            if(deltable.size()==1){///////////////////////////////추천개수가 1개인경우
+                recommandtable.add(deltable.get(0));
+                while(true){
+                    int a = (int)(Math.random()*temptable.size());
+                    int test = recommandtable.indexOf(temptable.get(a));
+
+                    if(test == -1){
+                        recommandtable.add(temptable.get(a));
+                        break;
+                    }
+                }
+                while(true){
+                    int b = (int)(Math.random()*temptable.size());
+                    int test = recommandtable.indexOf(temptable.get(b));
+
+                    if(test == -1){
+                        recommandtable.add(temptable.get(b));
+                        break;
+                    }
+                }
+                break;
+            }else if(deltable.size()==2){/////////////////////////추천개수가 2개인경우
+                recommandtable.add(deltable.get(0));
+                recommandtable.add(deltable.get(1));
+                while(true){
+                    int a = (int)(Math.random()*temptable.size());
+                    int test = recommandtable.indexOf(temptable.get(a));
+
+                    if(test == -1){
+                        recommandtable.add(temptable.get(a));
+                        break;
+                    }
+                }
+                break;
+            }
+            else{////////////////////////////////////정상인경우
+                int a = (int)(Math.random()*randomtable.size());
+                recommandtable.add(randomtable.get(a));
+                while(true){
+                    int b = (int)(Math.random()*randomtable.size());
+                    int test = recommandtable.indexOf(randomtable.get(b));
+
+                    if(test == -1){
+                        recommandtable.add(randomtable.get(b));
+                        break;
+                    }
+                }
+                while(true) {
+                    int c = (int) (Math.random() * randomtable.size());
+                    int test = recommandtable.indexOf(randomtable.get(c));
+                    if (test == -1) {
+                        recommandtable.add(randomtable.get(c));
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+
+        ////////결과
+
+        im1.setImageResource(recommandtable.get(0).getPicture());//알고리즘으로 나온 음식 3개 이미지와 간단한 설명 할당
+        im2.setImageResource(recommandtable.get(1).getPicture());
+        im3.setImageResource(recommandtable.get(2).getPicture());
+        fe1.setText('"'+recommandtable.get(0).getExample()+'"');
+        fe2.setText('"'+recommandtable.get(1).getExample()+'"');
+        fe3.setText('"'+recommandtable.get(2).getExample()+'"');
+        ///////////////////////////////////////////////////////////////////////////////////////////////
+
+        im1.setOnClickListener(new View.OnClickListener() {//이미지 버튼 클릭시 토스트메시지로 음식이름 알려줌
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), recommandtable.get(0).getName(), Toast.LENGTH_SHORT).show();
+
+            }
+        });
+        im2.setOnClickListener(new View.OnClickListener() {//이미지 버튼 클릭시 토스트메시지로 음식이름 알려줌
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), recommandtable.get(1).getName(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        im3.setOnClickListener(new View.OnClickListener() {//이미지 버튼 클릭시 토스트메시지로 음식이름 알려줌
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), recommandtable.get(2).getName(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+}
 
+class Food{//음식 클래스
 
+    public int hot;
 
+    public int price;
+
+    public int weather;
+
+    public int temperature;
+
+    public int time;
+
+    public int kind;
+
+    public String name;
+
+    public String example;
+
+    public int picture;
+
+    public Food(int hot, int price, int weather, int temperature, int time, int kind, String name, String example, int picture){//음식 생성자
+        this.hot = hot;
+        this.price = price;
+        this.weather = weather;
+        this.temperature = temperature;
+        this.time = time;
+        this.kind = kind;
+        this.name = name;
+        this.example = example;
+        this.picture = picture;
+    }
+    public int getHot(){
+        return hot;
+    }
+    public int getPrice(){
+        return price;
+    }
+    public int getWeather(){
+        return weather;
+    }
+    public int getTemperature(){
+        return temperature;
+    }
+    public int getTime(){
+        return time;
+    }
+    public int getKind(){
+        return kind;
+    }
+    public String getName(){
+        return name;
+    }
+    public String getExample(){
+        return example;
+    }
+    public int getPicture(){
+        return picture;
+    }
 }
